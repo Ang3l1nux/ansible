@@ -1,0 +1,13 @@
+---
+ - hosts: all
+   become: true
+   remote_user: ansible
+   
+   tasks:
+   
+     - name: Create user spok
+       user:
+         name: spok
+         password: spok
+         shell: /bin/bash
+         group: wheel
