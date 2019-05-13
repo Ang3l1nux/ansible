@@ -1,0 +1,32 @@
+---
+  version: '2'
+  services:
+    centos6:
+      image: deadc/ansible_centos6
+      cap_add:
+        - SYS_ADMIN
+      security_opt:
+        - seccomp:unconfined
+      volumes:
+        - /sys/fs/cgroup:/sys/fs/cgroup:ro
+        - .:/ansible/roles/test
+
+    centos7:
+      image: deadc/ansible_centos7
+      cap_add:
+        - SYS_ADMIN
+      security_opt:
+        - seccomp:unconfined
+      volumes:
+        - /sys/fs/cgroup:/sys/fs/cgroup:ro
+        - .:/ansible/roles/test
+
+    debian9:
+      image: deadc/ansible_debian9
+      cap_add:
+        - SYS_ADMIN
+      security_opt:
+        - seccomp:unconfined
+      volumes:
+        - /sys/fs/cgroup:/sys/fs/cgroup:ro
+        - .:/ansible/roles/test

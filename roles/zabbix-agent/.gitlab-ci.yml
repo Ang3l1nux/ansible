@@ -1,0 +1,44 @@
+---
+
+  image: tmaier/docker-compose:latest
+
+  services:
+    - docker:dind
+
+  stages:
+    - centos6
+    - centos7
+    - debian9
+
+  centos6:
+    stage: centos6
+    script:
+    - docker-compose up -d centos6
+    - docker-compose exec -T centos6 /bin/bash -lc "ln -nfs roles/test/*.yml ."
+    - docker-compose exec -T centos6 /bin/bash -lc "ansible-playbook -i localhost, tests.yml -c local"
+    - docker-compose exec -T centos6 /bin/bash -lc "ansible -i localhost, -c local all -m setup --tree . &>/dev/null"
+    - docker-compose exec -T centos6 /bin/bash -lc "sleep 60"
+    - docker-compose exec -T centos6 /bin/bash -lc "goss --vars localhost -g goss.yml validate"
+    - docker-compose stop centos6
+
+  centos7:
+    stage: centos7
+    script:
+    - docker-compose up -d centos7
+    - docker-compose exec -T centos7 /bin/bash -lc "ln -nfs roles/test/*.yml ."
+    - docker-compose exec -T centos7 /bin/bash -lc "ansible-playbook -i localhost, tests.yml -c local"
+    - docker-compose exec -T centos7 /bin/bash -lc "ansible -i localhost, -c local all -m setup --tree . &>/dev/null"
+    - docker-compose exec -T centos7 /bin/bash -lc "sleep 60"
+    - docker-compose exec -T centos7 /bin/bash -lc "goss --vars localhost -g goss.yml validate"
+    - docker-compose stop centos7
+
+  debian9:
+    stage: debian9
+    script:
+    - docker-compose up -d debian9
+    - docker-compose exec -T debian9 /bin/bash -lc "ln -nfs roles/test/*.yml ."
+    - docker-compose exec -T debian9 /bin/bash -lc "ansible-playbook -i localhost, tests.yml -c local"
+    - docker-compose exec -T debian9 /bin/bash -lc "ansible -i localhost, -c local all -m setup --tree . &>/dev/null"
+    - docker-compose exec -T debian9 /bin/bash -lc "sleep 60"
+    - docker-compose exec -T debian9 /bin/bash -lc "goss --vars localhost -g goss.yml validate"
+    - docker-compose stop debian9

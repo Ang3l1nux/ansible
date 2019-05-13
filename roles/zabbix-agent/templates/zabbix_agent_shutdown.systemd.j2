@@ -1,0 +1,10 @@
+[Unit]
+Description=Zabbix Agent Shutdown
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStop=/usr/local/bin/zabbix-agent-shutdown
+
+[Install]
+WantedBy=multi-user.target

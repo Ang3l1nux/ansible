@@ -1,0 +1,65 @@
+#!/bin/bash
+# chkconfig: - 86 14
+# description: Zabbix Agent de-register script
+# processname: zabbix_agent_shutdown
+# This script removes the host from Zabbix Server (needs curl)
+
+ZBX_USER={{ zabbix_agent_server_user }}
+ZBX_PASS={{ zabbix_agent_server_user }}
+ZBX_HOST={{ zabbix_agent_server_host }}
+
+NAME=zabbix-agent-shutdown
+function _zabbix_delete
+{
+  ZBX_HOSTID=$1
+  ZBX_TOKEN=$2
+
+  JSON='{ "jsonrpc": "2.0", "method": "host.delete", "params": [ "'${ZBX_HOSTID}'" ], "auth": "'${ZBX_TOKEN}'", "id": 1 }'
+  curl -s -X POST -H "Content-Type: application/json" -d "$JSON" "${ZBX_HOST}"
+
+  if [ "$?" == "0" ] ; then
+    rm -f /var/lock/subsys/${NAME}
+  fi
+}
+
+function _zabbix_search
+{
+  ZBX_TOKEN=$1
+  ZBX_HOSTNAME=$( grep -Ei "^hostname" /etc/zabbix/zabbix_agentd.conf | cut -d = -f 2 )
+
+  JSON='{ "jsonrpc": "2.0", "method": "host.get", "params": { "output": [ "hostid", "host" ] }, "auth": "'${ZBX_TOKEN}'", "id": 1 }'
+  curl -s -X POST -H "Content-Type: application/json" -d "$JSON" "${ZBX_HOST}" | awk -v RS='{"' -F\" '/^hostid/ {printf $3 " - " $7 "\n"}' | grep "${ZBX_HOSTNAME}" | awk '{print $1}'
+}
+
+function _zabbix_auth
+{
+  JSON='{ "jsonrpc": "2.0", "method": "user.login", "params": { "user": "'$ZBX_USER'", "password": "'$ZBX_PASS'"  }, "id": 0 }'
+  curl -s -X POST -H "Content-Type: application/json" -d "$JSON" "${ZBX_HOST}" | cut -d '"' -f 8
+}
+
+function _start
+{
+  touch /var/lock/subsys/${NAME}
+}
+
+function _stop
+{
+  ZBX_TOKEN=$( _zabbix_auth )
+  ZBX_HOSTID=$( _zabbix_search ${ZBX_TOKEN} )
+  _zabbix_delete ${ZBX_HOSTID} ${ZBX_TOKEN}
+}
+
+case "$1" in
+    start)
+	   _start
+	    ;;
+    stop)
+     _stop
+	    ;;
+    restart|force-reload)
+     _start
+	    ;;
+    *)
+     _stop
+	    ;;
+esac

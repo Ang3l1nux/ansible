@@ -1,0 +1,20 @@
+package:
+  zabbix-agent:
+    installed: true
+
+port:
+  tcp:10050:
+    listening: true
+    ip:
+      - 0.0.0.0
+
+service:
+  zabbix-agent:
+    enabled: true
+    running: true
+  zabbix-agent-shutdown:
+    enabled: true
+    running: true
+file:
+  /etc/zabbix/zabbix_agentd.conf:
+    exists: true

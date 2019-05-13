@@ -1,0 +1,56 @@
+---
+
+  - name: Install Zabbix {{ zabbix_agent_base_version }} repo
+    yum:
+      name: http://repo.zabbix.com/zabbix/{{ zabbix_agent_base_version }}/rhel/7/{{ ansible_architecture }}/zabbix-release-{{ zabbix_agent_version }}.el7.noarch.rpm
+      state: latest
+    tags:
+      - zabbix-agent
+
+  - name: Installing Zabbix Agent {{ zabbix_agent_base_version }}
+    yum:
+      name: zabbix-agent
+      state: latest
+    tags:
+      - zabbix-agent
+
+  - name: Create scripts directory
+    file:
+      path: /etc/zabbix/scripts
+      state: directory
+    tags:
+      - zabbix-agent
+
+  - name: Configure Zabbix Agent {{ zabbix_agent_base_version }}
+    template:
+      src: zabbix_agentd.conf.j2
+      dest: /etc/zabbix/zabbix_agentd.conf
+    notify:
+      - restart zabbix-agent
+    tags:
+      - zabbix-agent
+
+  - name: Install Zabbix Agent Shutdown {{ ansible_service_mgr }}
+    template:
+      src: zabbix_agent_shutdown.centos.j2
+      dest: "{{ (ansible_service_mgr == 'systemd') | ternary('/usr/local/bin/zabbix-agent-shutdown', '/etc/init.d/zabbix-agent-shutdown') }}"
+      mode: 0755
+    when:
+      - zabbix_agent_autoremove_enabled
+    notify:
+      - restart zabbix-agent-shutdown
+    tags:
+      - zabbix-agent
+
+  - name: Install Systemd Zabbix Agent Shutdown
+    template:
+      src: zabbix_agent_shutdown.systemd.j2
+      dest: /lib/systemd/system/zabbix-agent-shutdown.service
+      mode: 0755
+    when:
+      - zabbix_agent_autoremove_enabled
+      - ansible_service_mgr == 'systemd'
+    notify:
+      - restart zabbix-agent-shutdown
+    tags:
+      - zabbix-agent

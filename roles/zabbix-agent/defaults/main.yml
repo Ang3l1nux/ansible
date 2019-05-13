@@ -1,0 +1,15 @@
+---
+
+zabbix_agent_version: 3.2-1
+zabbix_agent_base_version: "{{ zabbix_agent_version[:3] }}"
+
+zabbix_agent_server_ip: 0.0.0.0
+zabbix_agent_client_ip: 0.0.0.0
+zabbix_agent_client_hostname: "{{ ansible_hostname }}"
+zabbix_agent_host_metadata: test
+
+zabbix_agent_autoremove_enabled: true
+
+zabbix_agent_server_user: zabbix
+zabbix_agent_server_pass: zabbix
+zabbix_agent_server_host: http://localhost/api_jsonrpc.php

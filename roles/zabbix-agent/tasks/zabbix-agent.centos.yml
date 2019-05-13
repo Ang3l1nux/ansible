@@ -1,0 +1,44 @@
+---
+  - name: Install Zabbix {{ zabbix_agent_base_version }} repo
+    yum:
+      name: http://repo.zabbix.com/zabbix/{{ zabbix_agent_base_version }}/rhel/{{ ansible_distribution_major_version }}/{{ ansible_architecture }}/zabbix-release-{{ zabbix_agent_version }}.el{{ ansible_distribution_major_version }}.noarch.rpm
+      state: latest
+    tags:
+      - zabbix-agent
+
+  - name: Installing Zabbix Agent {{ zabbix_agent_base_version }}
+    yum:
+      name: zabbix-agent
+      state: latest
+    tags:
+      - zabbix-agent
+
+  - name: Create scripts directory
+    file:
+      path: /etc/zabbix/scripts
+      state: directory
+    tags:
+      - zabbix-agent
+
+  - name: 'Adicionar parametros ao agentd.conf'
+
+    lineinfile:
+      dest: /etc/zabbix/zabbix_agentd.conf
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+
+    with_items:
+      - { regexp: '^LogFile=', line: 'LogFile=/tmp/zabbix_agentd.log' }
+      - { regexp: '^PidFile=', line: 'PidFile=/var/run/zabbix/zabbix_agentd.pid' }
+      - { regexp: '^Server=', line: 'Server=10.128.164.63' }
+      - { regexp: '^ServerActive=', line: 'ServerActive=10.128.164.63' }
+      - { regexp: '^HostMetadataItem=', line: 'HostMetadataItem=system.uname' }
+      - { regexp: '^Hostname=', line: '#Hostname=' }
+      - { regexp: '^EnableRemoteCommands=', line: 'EnableRemoteCommands=1' }
+
+  - name: Service started in boot
+    service:
+      name: zabbix-agent
+      state: started
+      enabled: yes
+    become: yes  

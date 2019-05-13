@@ -1,0 +1,10 @@
+---
+
+  - import_tasks: zabbix-agent.centos.yml
+    when: ansible_distribution == "CentOS"
+
+  - import_tasks: zabbix-agent.debian.yml
+    when: ansible_distribution == "Debian"
+
+  - import_tasks: zabbix-agent.amazon.yml
+    when: ansible_distribution == "Amazon"
