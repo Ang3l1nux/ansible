@@ -1,5 +1,5 @@
 ---
-# Este playbook usa o modulo win_ping poara testar a conectividade com os hosts Windows
+# Este playbook usa o modulo win_ping para testar a conectividade com os hosts Windows
 - name: Ping 
   hosts: all 
 
