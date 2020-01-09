@@ -1,0 +1,8 @@
+---
+# Este playbook usa o modulo win_ping poara testar a conectividade com os hosts Windows
+- name: Ping 
+  hosts: all 
+
+  tasks:
+  - name: ping
+    win_ping:
