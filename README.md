@@ -73,10 +73,13 @@ ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
 > ansible webserver -i hosts -u vagrant -m yum -a "name=httpd state=present" -b <br />
 
 <h3 style="color: blue"><ins>HandsOn AD Hoc commands</ins></h3>
-<p>all=todos os hostsa -i=quem é o arquivo de hosts -u=usuario -m modulo</p>
-<p>o modulo "ping" apenas faz um ping nos hosts para testar a comunicacao</p>
-<p>o modulo "setup" faz um ansible_facts, coleta informações dos servers, util para condicionais</p>
-<p> o modulo "yum" instala pacotes no redhat e derivados</p>
-<p>-a=arguments que no caso é name=o nome do pacote, state=? [present], [absent] e o -b para utilizar sudo</p>
-<p></p>
+
+all=todos os hostsa -i=quem é o arquivo de hosts -u=usuario -m modulo.  
+o modulo "ping" apenas faz um ping nos hosts para testar a comunicacao  
+o modulo "setup" faz um ansible_facts, coleta informações dos servers, util para condicionais  
+o modulo "yum" instala pacotes no redhat e derivados  
+-a=arguments que no caso é name=o nome do pacote, state=? [present], [absent] e o -b para utilizar sudo  
+
+
+
 
