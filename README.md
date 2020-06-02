@@ -26,26 +26,31 @@ The most common and preferrd way of instalation
 <p>É uma coleção de hosts (nodes) e pode trabalhar com hosts e grupos (static ou dynamic</p>
 
 <p>Static Inventory</p>
-<p style="background-color: #000000; width: 20%;">
-10.42.0.2 <br />
-10.43.12.120 <br />
-10.42.10.20 <br />
-10.43.40.9 <br />
-</p>
+
+```
+10.42.0.2
+10.43.12.120
+10.42.10.20
+10.43.40.9
+```
 <br />
-<p style="background-color: #000000; width: 45%;">
-[control] <br />
-control ansible_host=10.42.0.2 <br /> <br />
-[web] <br />
-node-1 ansible_host=10.42.0.6<br />
-node-2 ansible_host=10.42.0.7<br />
-node-2 ansible_host=10.42.0.8 <br /> <br />
-[haproxy]<br />
-haproxy ansible_host=10.42.0.100 <br /> <br />
-[all:vars]<br /> 
-ansible_user=vagrant<br /> 
-ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key<br /> 
-</p>
+
+``` 
+[control]
+control ansible_host=10.42.0.2
+
+[web]
+node-1 ansible_host=10.42.0.6
+node-2 ansible_host=10.42.0.7
+node-2 ansible_host=10.42.0.8
+
+[haproxy]
+haproxy ansible_host=10.42.0.100
+
+[all:vars]
+ansible_user=vagrant
+ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
+```
 
 <h3 style="color: red; "><ins>Files</ins></h3>
 <ul>
@@ -62,12 +67,10 @@ ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key<br />
 > ansible localhost -m setup <br />
 
 <p>Teste</p>
-<p style="background-color: #000000; width: 55%;">
-ansible all -i hosts -u vagrant -m ping <br /> 
-ansible all -i hosts -u vagrant -m setup <br />
-ansible webserver -i hosts -u vagrant -m yum -a "name=httpd state=present" -b <br />
-</p>
-<br />
+
+> ansible all -i hosts -u vagrant -m ping <br /> 
+> ansible all -i hosts -u vagrant -m setup <br />
+> ansible webserver -i hosts -u vagrant -m yum -a "name=httpd state=present" -b <br />
 
 <h3 style="color: blue"><ins>HandsOn AD Hoc commands</ins></h3>
 <p>all=todos os hostsa -i=quem é o arquivo de hosts -u=usuario -m modulo</p>
