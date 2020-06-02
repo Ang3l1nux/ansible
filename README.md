@@ -80,6 +80,93 @@ o modulo "setup" faz um ansible_facts, coleta informações dos servers, util pa
 o modulo "yum" instala pacotes no redhat e derivados  
 -a=arguments que no caso é name=o nome do pacote, state=? [present], [absent] e o -b para utilizar sudo  
 
+# Playbook and Variables:
 
+<h3 style="color: blue"><ins>Variables Precedence (ordem de execução das variaveis) sixteen</ins></h3>
+  
+1- Extra vars  
+2- Task vars (only for the task)  
+3- Block vars (only for tasks in the block)  
+4- Role and include vars  
+5- Play vars_files  
+6- Play vars_prompt  
+7- Play vars  
+8- set_facts  
+9- registered vars  
+10- host facts  
+11- Playbook host_vars   
+12- Playbook group_vars    
+13- Inventory host_vars   
+14- Inventory group_vars   
+15- Inventory vars  
+16- Role defaults  
+
+
+<h3 style="color: red"><ins>Variables</ins></h3>
+
+File: A directory should exist  
+Yum: A package should be installed  
+Service: A service should be running  
+Template: Render as config file from a template  
+get_url: Fetch an archive file from a URL 
+git: clone a source code repository 
+
+<h3 style="color: red"><ins>Tasks</ins></h3>
+
+Nome + Modulo + Argumento  
+
+```
+tasks:
+  - name: add cache dir
+    file: 
+      path: /opt/cache
+      state: directory
+
+  - name: install nginx
+    yum: 
+      name: nginx
+      state: latest
+
+  - name: restart nginx
+    service:
+      name: nginx
+      state: restarted
+```
+
+<h3 style="color: red"><ins>Handler Tasks?</ins></h3>
+
+> São listas de tasks (tarefas), não muito diferentes das tasks regulares que são 
+referenciadas por um nome globalmente exclusivo e são notificadas pelos notificadores.
+Se não for notificada não será executada.
+
+```
+handlers:
+  - name: restart nginx
+    service:
+      name: nginx
+      state: restarted
+```
+
+<h3 style="color: red"><ins>Para notifica-lo:</ins></h3>
+
+```
+tasks:
+  - name: install nginx
+    yum: 
+      name: nginx
+      state: latest
+    notify: restart nginx   
+```
+
+<h3 style="color: red"><ins>Playbooks</ins></h3>
+
+tasks  
+templates = .j2  
+--- = opcional  (indica o inicio)
+changed_when: false  
+<a href="redhat/site.yml">exemplo playbook</a>  
+Para executar:  
+
+>ansible-playbook -i hosts site.yml  
 
 
