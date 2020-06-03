@@ -162,11 +162,236 @@ tasks:
 
 tasks  
 templates = .j2  
---- = opcional  (indica o inicio)
+--- = opcional  (indica o inicio)  
 changed_when: false  
+when  
 <a href="redhat/site.yml">exemplo playbook</a>  
 Para executar:  
 
 >ansible-playbook -i hosts site.yml  
 
+https://symfonycasts.com/screencast/ansible/idempotency-changed-when   
+https://www.middlewareinventory.com/blog/ansible-changed_when-and-failed_when-examples/   
+https://github.com/ansible/ansible/issues/14430   
+
+# Ansible Roles
+
+<h3 style="color: blue"><ins>Roles</ins></h3>
+
+Roles are a package of closely related Ansible content the can be shared more  
+easily than plays alone.
+
+<h3 style="color: blue"><ins>Project with embedded Roles</ins></h3>
+
+```
+site.yml
+role/
+   common/
+     files/
+     templates/
+     tasks/
+     handlers/
+     vars/
+     defaults/
+     meta/
+    apache/
+      files/
+      templates/
+      tasks/
+      handlers/
+      vars/
+      defaults/
+      meta/
+```
+<h3 style="color: blue"><ins>Playbook with roles</ins></h3>
+
+```
+# site.yml
+---
+- hosts: web
+  roles:
+     - common
+     - apache
+```
+
+<h3 style="color: blue"><ins>Ansible Galaxy</ins></h3>
+
+http://galaxy.ansible.com   
+https://jinja.palletsprojects.com/en/2.11.x/   
+
+Creating the Roles Structure with Ansible-Galaxy (and demonstration)
+ansible-galaxy init --help
+
+mkdir roles 
+cd roles
+ansible-galaxy init common
+ansible-galaxy init apache
+
+<h3 style="color: blue"><ins>Breaking an Existing Playbook into a Role (and demonstration)</ins></h3>
+
+>touch /common/tasks/ntp.yml   
+>touch /common/tasks/selinux.yml  
+>ls -l /common/tasks/  
+>ntp.yml  
+>selinux.yml  
+>main.yml  
+
+vim roles/common/tasks/selinux.yml
+
+```
+---
+- name: Install python bindigs for SELinux 
+  yum: name={{tem}} state:present 
+  with_items:
+  - libselinux-python
+  - libsemanage-python 
+   
+- name: test to see if Selinux s running
+  command: getenforce 
+  register: sestatus 
+  changed_when: false
+```
+
+vim roles/common/tasks/ntp.yml
+
+```
+---
+- name: install ntp
+  yum: name=ntp state=present
+
+- name: configure ntp file
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf
+  notify: start ntp 
+
+- name: start ntp
+  service: name=ntpd state=started      
+```
+
+vim roles/common/handlers/main.yml
+```
+---
+- name: restart ntp
+  service: name=ntpd state=restarted
+```
+
+vim roles/common/templates/ntp.conf.j2
+```
+driftfile /var/lib/ntp/drift
+
+restrict 127.0.0.1
+restrict -6 ::1
+
+server {{ ntpserver }}
+
+includefile /etc/ntp/crypto/pw
+
+keys /etc/ntp/keys
+```
+
+group_vars/all  
+<a href="redhat/group_vars/all">file</a>
+
+vim roles/common/tasks/main.yml 
+```
+---
+- name: Install epel repo # nome para a tarefa 
+  yum: name=epel-release state=present
+
+- include: selinux.yml
+- include: ntp.yml   
+```
+
+vim roles/apache/tasks/main.yml
+```
+- name: Install Apache 
+  yum: name=httpd state=present 
+
+- name: create sites directories 
+  file: path={{item}} state=diretory
+  with_items: "{{apacje_dirs}}"
+
+- name: copy an index.html
+  template: src=index.html.j2 dest={{apache_docroot}}/index.html
+
+- name: copy httpd conf
+  template: src=httpd.conf-{{ansible_os_family}}.j2 dest={{apache_config}}
+  notify: restart apache 
+
+- name: Start Apache 
+  service: name=httpd state=started enabled=yes
+```
+
+vim roles/apache/template/index.html.j2  
+<a href="redhat/roles/apache/templates/index.html.j2">index.html.j2</a>
+
+vim roles/webserver/template/httpd.conf-RedHat.j2  
+<a href="redhat/roles/apache/templates/httpd.conf-RedHat.j2">httpd.conf-RedHat.j2</a> 
+
+vim roles/apache/handlers/main.yml 
+```
+---
+- name: restart apache 
+  service: name=httpd state=restarted
+```
+
+<h3 style="color: blue"><ins>Create New Role</ins></h3>
+
+>cd /roles  
+>ansible-galaxy init web  
+>vim /roles/web/tasks/main.yml
+
+```
+---
+- name: install git
+  yum: name=git state=present
+
+- name: checkout lameapp
+  git: repo=https://github.com/jsmatin/lameapp.git version="{{lameapp_version|string}}"
+
+- name: set permissions on the app
+  file: name=/var/www/lameapp/lame.py mode=0755
+
+- name: add apache config 
+  copy: src=lameapp.conf dest={{sites_available}}
+  notify: restart apache 
+
+- name: link app config 
+  file: src="{{sites_available}}/lameapp.conf" dest={{sites_enabled}}/lameapp.conf state=link
+
+- meta: flush_handlers
+
+- name: check for proper response 
+  uri:
+    url:= http://localhost/lame
+    return_content= yes
+  register: result  
+  until: '"Hello Moon" in result.content'
+```
+
+vim /roles/web/files/lameapp.conf  
+<a href="redhat/roles/web/files/lameapp.conf">lameapp.conf</a> 
+
+vim /roles/web/handlers/main.yml  
+```   
+---
+- name: restart apache 
+  service: name=httpd state=restarted 
+```
+
+<h3 style="color: blue"><ins>Finale</ins></h3>
+
+Ansible Tower:  
+https://www.ansible.com/products/tower  
+
+Ansible AWX:  
+https://github.com/ansible/awx  
+https://www.youtube.com/watch?v=ZatqBgn_Wic  
+https://dataunique.com.br/blog/instalando-o-awx-para-gerenciamento-de-playbooks-ansible/  
+https://medium.com/@alvarobacelar/simplificando-o-awx-1-6-156237ed7a22  
+
+RBACK: ?  
+
+Git:    
+https://github.com/michelleperz
+https://github.com/jsmartin/lameapp
 

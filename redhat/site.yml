@@ -1,5 +1,5 @@
 ---
-- name: install ans start apache # nome para identificação do playbook
+- name: install and start apache # nome para identificação do playbook
   hosts: webservers # aqui defino meus alvos neste caso o grupo webservers do hosts
   remote_user: vagrant # defino qual o usuario de acesso 
   become: yes # aqui defino que o user vai utilizar sudo su para tarefas do root 
