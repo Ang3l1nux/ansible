@@ -1,0 +1,9 @@
+---
+- name: Starting deploy
+  hosts: all
+  become: true
+  roles:
+    - common
+    - nginx  
+...
+

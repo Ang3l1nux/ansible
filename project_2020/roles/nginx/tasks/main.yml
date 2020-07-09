@@ -1,0 +1,18 @@
+---
+- name: Install nginx
+  yum:
+    name: nginx
+    state: latest
+
+- name: Copy the nginx index.html
+  copy:
+    src: "{{ role_path }}/files/index.html"
+    dest: /usr/share/nginx/html
+    #remote_src: true
+
+- name: Start NGiNX and configure enabled
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+      
